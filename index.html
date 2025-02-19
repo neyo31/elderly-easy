@@ -1,0 +1,101 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Helper Bot for Seniors</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; background-color: #dceefb; animation: fadeIn 1.5s ease-in-out; }
+        button { padding: 15px; margin: 10px; font-size: 18px; cursor: pointer; border-radius: 10px; background-color: #007bff; color: white; border: none; transition: transform 0.3s; }
+        button:hover { background-color: #0056b3; transform: scale(1.1); }
+        #output, #imageResult, #reminder { margin-top: 20px; font-size: 20px; padding: 15px; background: white; display: inline-block; border-radius: 10px; box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1); animation: slideIn 1s ease-in-out; }
+        video { width: 100%; max-width: 400px; margin-top: 20px; border-radius: 10px; box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1); animation: fadeIn 1.5s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideIn {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <h1>AI Helper Bot for Seniors</h1>
+    <p>Click the button and speak. The AI will assist you.</p>
+    <button onclick="startListening()">🎤 Talk to AI</button>
+    <p id="output"></p>
+    
+    <h2>Upload or Use Camera for Object Recognition</h2>
+    <input type="file" accept="image/*" id="imageInput" onchange="identifyImage()">
+    <button onclick="startCamera()">📷 Open Camera</button>
+    <video id="camera" autoplay></video>
+    <p id="imageResult"></p>
+    
+    <h2>Medication Reminder</h2>
+    <button onclick="setReminder()">⏰ Set Medication Reminder</button>
+    <p id="reminder"></p>
+    
+    <script>
+        function startListening() {
+            const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            recognition.onresult = function(event) {
+                const speech = event.results[0][0].transcript;
+                document.getElementById("output").innerText = "You said: " + speech;
+                provideComfort(speech);
+                speakText("AI: " + speech);
+            };
+            recognition.start();
+        }
+
+        function provideComfort(text) {
+            const comfortMessages = [
+                "You're not alone. I'm here for you!",
+                "Everything will be okay. Take a deep breath!",
+                "You are loved and valued!",
+                "I'm here to help, just ask me anything!"
+            ];
+            const response = comfortMessages[Math.floor(Math.random() * comfortMessages.length)];
+            document.getElementById("output").innerText += "\nAI: " + response;
+            speakText(response);
+        }
+
+        function identifyImage() {
+            const imageResult = document.getElementById("imageResult");
+            imageResult.innerText = "Processing image...";
+            setTimeout(() => {
+                imageResult.innerText = "AI: This looks like an object! (AI Image Recognition Coming Soon!)";
+                speakText("This looks like an object!");
+            }, 2000);
+        }
+
+        function startCamera() {
+            const video = document.getElementById("camera");
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(stream => { video.srcObject = stream; })
+                .catch(error => { alert("Error accessing camera: " + error); });
+        }
+
+        function setReminder() {
+            let time = prompt("Enter reminder time in minutes:");
+            if (time && !isNaN(time)) {
+                setTimeout(() => {
+                    const reminderText = "Reminder: It's time to take your medication!";
+                    document.getElementById("reminder").innerText = reminderText;
+                    speakText(reminderText);
+                    alert(reminderText);
+                }, time * 60000);
+                document.getElementById("reminder").innerText = `Reminder set for ${time} minutes.`;
+            } else {
+                alert("Please enter a valid number.");
+            }
+        }
+
+        function speakText(text) {
+            const utterance = new SpeechSynthesisUtterance(text);
+            window.speechSynthesis.speak(utterance);
+        }
+    </script>
+</body>
+</html>
